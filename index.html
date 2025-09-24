@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тестовое: Пошаговая Игра «РОГАЛИК» (ES5)</title>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <h1>Пошаговая игра «РОГАЛИК»</h1>
+      <div class="hud">
+        <div class="stat"><span>Здоровье:</span> <strong id="hpText">100 / 100</strong></div>
+        <div class="stat"><span>Урон героя:</span> <strong id="atkText">10</strong></div>
+        <div class="stat"><span>Ход:</span> <strong id="turnText">Герой</strong></div>
+      </div>
+      <details class="help">
+        <summary>Управление</summary>
+        <ul>
+          <li>W/A/S/D — движение (вверх/влево/вниз/вправо)</li>
+          <li>Пробел — атаковать всех противников на соседних клетках</li>
+        </ul>
+      </details>
+    </header>
+
+    <main>
+      <div id="field" class="field" aria-label="Игровое поле" role="grid"></div>
+    </main>
+
+    <footer class="bottom">
+      <button id="restartBtn" type="button">Перегенерировать карту</button>
+      <div class="legend">
+        <span class="legend-item wall">стена</span>
+        <span class="legend-item floor">пол</span>
+        <span class="legend-item hero">герой</span>
+        <span class="legend-item enemy">противник</span>
+        <span class="legend-item sword">меч</span>
+        <span class="legend-item potion">зелье</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
