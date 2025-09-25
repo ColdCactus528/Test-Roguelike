@@ -55,7 +55,7 @@
    ```bash
    docker build -t roguelike:latest .
 2. Запустите контейнер:
-  ```
+  ```bash
   docker run --rm -p 8080:80 roguelike:latest
   ```
 3. Откройте игру в браузере: http://localhost:8080
