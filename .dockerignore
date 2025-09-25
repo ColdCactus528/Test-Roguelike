@@ -1,0 +1,11 @@
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+node_modules
+**/.DS_Store
+**/Thumbs.db
+**/*.log
+docker/
+!docker/nginx.conf
+!.dockerignore

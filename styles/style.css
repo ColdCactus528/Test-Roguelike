@@ -1,0 +1,401 @@
+/* =========================================================
+   Roguelike UI — Neon Progression Theme
+   ========================================================= */
+
+:root{
+  /* Grid */
+  --tile: 30px;
+  --cols: 40;
+  --rows: 24;
+  --gap: 1px;
+
+  /* Palette */
+  --bg: #0f1115;
+  --card: #121621;
+  --border: #2a3142;
+  --muted: #8aa1b1;
+
+  --hero:  #3ddc97;
+  --enemy: #ff6b6b;
+  --sword: #ffd166;
+  --potion:#7bb2ff;
+
+  --floor: #1b2130;
+  --wall:  #0b0e14;
+}
+
+/* =========================================================
+   Base / Layout
+   ========================================================= */
+*{ box-sizing:border-box; }
+body{
+  margin:0;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial,"Apple Color Emoji","Segoe UI Emoji";
+  color:#e9eef6;
+  background: radial-gradient(1000px 600px at 50% -200px, #1a2031, #0e121c 60%, #0a0d14 100%);
+}
+
+.wrap{ max-width:1760px; margin:24px auto; padding:0 16px; }
+.top h1{ margin:0 0 8px; font-size:20px; }
+
+.hud{
+  display:flex; gap:16px; flex-wrap:wrap; color:var(--muted);
+}
+.hud .stat{
+  display:flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:10px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);
+}
+.hud .stat span{ opacity:.8; margin-right:6px; }
+.hud .stat b, .hud .stat strong{ color:#e9eef6; font-weight:600; }
+
+/* XP mini bar (optional in HUD) */
+.xpbar{
+  position:relative; width:140px; height:6px; border-radius:999px; overflow:hidden;
+  background:rgba(255,255,255,.08);
+}
+.xpbar > i{
+  display:block; height:100%; width:0%;
+  background: linear-gradient(90deg, var(--hero), #aaf5d6);
+  transition: width .25s ease;
+}
+
+.help{ margin-top:8px; color:var(--muted); }
+
+/* =========================================================
+   Game Field
+   ========================================================= */
+.field{
+  margin:16px 0;
+  display:grid;
+  grid-template-columns: repeat(var(--cols), var(--tile));
+  grid-template-rows: repeat(var(--rows), var(--tile));
+  gap:var(--gap);
+  width: calc(var(--cols) * var(--tile) + (var(--cols) - 1) * var(--gap) + 2 * var(--gap));
+  height: calc(var(--rows) * var(--tile) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
+
+  padding:var(--gap);
+  border-radius:10px;
+  background:var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.02);
+  overflow:hidden;
+}
+
+.tile{
+  width:var(--tile); height:var(--tile);
+  position:relative; display:block;
+  border-radius:4px;
+}
+.tile.wall  { background:var(--wall); }
+.tile.floor { background:var(--floor); }
+
+/* =========================================================
+   Entities on Tiles
+   ========================================================= */
+
+.tile.hero::after,
+.tile.enemy::after,
+.tile.sword::after,
+.tile.potion::after{
+  content:"";
+  position:absolute; inset:3px;
+  border-radius:3px;
+  outline:1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+}
+
+.tile.sword{
+  background: radial-gradient(120% 120% at 20% 20%, #2e2814 0%, #211a0f 40%, #19130c 100%);
+}
+.tile.sword::after{
+  background: radial-gradient(circle at 50% 45%, rgba(255,209,102,.42), transparent 60%);
+  border:1px solid rgba(255,209,102,.38);
+  box-shadow: 0 0 6px rgba(255,209,102,.35), inset 0 0 0 2px rgba(255,255,255,.04);
+}
+
+.tile.potion{
+  background: radial-gradient(120% 120% at 25% 25%, #17233a 0%, #111a2b 45%, #0d1522 100%);
+}
+.tile.potion::after{
+  background: radial-gradient(circle at 50% 45%, rgba(123,178,255,.46), transparent 60%);
+  border:1px solid rgba(123,178,255,.40);
+  box-shadow: 0 0 7px rgba(123,178,255,.40), inset 0 0 0 2px rgba(255,255,255,.04);
+}
+
+/* -------- Enemy — НЕОНОВАЯ ПРОГРЕССИЯ ПО TIER --------
+   База без матовости (лёгкий «сатин») + рост свечения в ::after */
+.tile.enemy{
+  /* настраиваемые переменные для прогрессии */
+  --alpha:  .26;   /* интенсивность заливки (::after) */
+  --border: .22;   /* яркость контура (::after) */
+  --outer:   7px;  /* внешний шлейф */
+  --shine:  .18;   /* «сатиновый» свет на базе */
+
+  background:
+    radial-gradient(120% 120% at 25% 25%, rgba(255,107,107,var(--shine)) 0%, rgba(0,0,0,0) 55%),
+    linear-gradient(145deg, #2a1718, #231217);
+}
+.tile.enemy::after{
+  background: radial-gradient(circle at 50% 45%, rgba(255,107,107,var(--alpha)), transparent 62%);
+  border:1px solid rgba(255,107,107,var(--border));
+  box-shadow:
+    0 0 var(--outer) rgba(255,107,107,.55),
+    0 0 calc(var(--outer) + 4px) rgba(255,107,107,.25),
+    inset 0 0 0 2px rgba(255,255,255,.04);
+}
+
+/* Пресеты по силе (t1..t4) — растёт всё: заливка, контур, шлейф, сатин */
+.tile.enemy.t1{ --alpha:.22; --border:.18; --outer:6px;  --shine:.12; }
+.tile.enemy.t2{ --alpha:.34; --border:.28; --outer:8px;  --shine:.18; }
+.tile.enemy.t3{ --alpha:.48; --border:.36; --outer:11px; --shine:.24; }
+.tile.enemy.t4{ --alpha:.66; --border:.48; --outer:14px; --shine:.30; }
+
+/* -------- Hero — НЕОНОВАЯ ПРОГРЕССИЯ ПО LEVEL --------
+   Круглый, база «сатин» + нарастающий неон в ::after */
+.tile.hero, .tile.hero::after{ border-radius:50% !important; }
+
+.tile.hero{
+  --alpha:.30; --border:.26; --outer:8px; --shine:.20;
+
+  background:
+    radial-gradient(120% 120% at 28% 28%, rgba(61,220,151,var(--shine)) 0%, rgba(0,0,0,0) 56%),
+    linear-gradient(145deg, #18282a, #132a21);
+}
+.tile.hero::after{
+  background: radial-gradient(circle at 50% 45%, rgba(61,220,151,var(--alpha)), transparent 62%);
+  border:1px solid rgba(61,220,151,var(--border));
+  box-shadow:
+    0 0 var(--outer) rgba(61,220,151,.55),
+    0 0 calc(var(--outer) + 5px) rgba(61,220,151,.28),
+    inset 0 0 0 2px rgba(255,255,255,.04);
+}
+
+.tile.hero.lv1{ --alpha:.26; --border:.22; --outer:7px;  --shine:.14; }
+.tile.hero.lv2{ --alpha:.34; --border:.28; --outer:9px;  --shine:.20; }
+.tile.hero.lv3{ --alpha:.44; --border:.34; --outer:11px; --shine:.26; }
+.tile.hero.lv4{ --alpha:.56; --border:.42; --outer:13px; --shine:.32; }
+.tile.hero.lv5{ --alpha:.70; --border:.52; --outer:15px; --shine:.38; }
+
+/* HP bar */
+.health{
+  position:absolute; left:2px; right:2px; bottom:2px; height:4px;
+  background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden;
+}
+.health > i{
+  display:block; height:100%; width:100%;
+  background: linear-gradient(90deg, #ff6b6b, #ffd166, #3ddc97);
+}
+
+/* =========================================================
+   Hover Linking & FX
+   ========================================================= */
+.tile.enemy.highlight{
+  outline:2px solid rgba(123,178,255,.65);
+  outline-offset:-2px;
+  box-shadow:
+    0 0 10px rgba(123,178,255,.35),
+    0 0 var(--outer) rgba(255,107,107,.55),
+    0 0 calc(var(--outer) + 5px) rgba(255,107,107,.25);
+}
+.tile.hero.highlight-hero{
+  outline:2px solid #3cb371;
+  outline-offset:-2px;
+  box-shadow:
+    0 0 8px rgba(60,179,113,.8) inset,
+    0 0 var(--outer) rgba(60,179,113,.6),
+    0 0 calc(var(--outer) + 6px) rgba(60,179,113,.28);
+}
+
+.tile.hero .pulse{
+  position:absolute; inset:5px; border-radius:50%; pointer-events:none; z-index:3;
+  animation: hero-pulse 350ms ease-out forwards;
+  background: radial-gradient(circle at 50% 50%, rgba(61,220,151,.55), rgba(61,220,151,.25) 45%, transparent 70%);
+  box-shadow: 0 0 12px rgba(61,220,151,.35), inset 0 0 8px rgba(61,220,151,.2);
+}
+@keyframes hero-pulse{
+  0%{   opacity:0; transform:scale(.7);  filter:brightness(1.2);}
+  40%{  opacity:1; transform:scale(1.0); filter:brightness(1.4);}
+  100%{ opacity:0; transform:scale(1.25);filter:brightness(1.0);}
+}
+
+.tile.wave{ position:relative; }
+.tile.wave::before{
+  content:""; position:absolute; inset:2px; border-radius:6px; z-index:2; pointer-events:none;
+  background: radial-gradient(circle at 50% 50%, rgba(123,178,255,.45), rgba(123,178,255,.20) 50%, transparent 70%);
+  outline:1px solid rgba(123,178,255,.35);
+  box-shadow: 0 0 10px rgba(123,178,255,.35), inset 0 0 6px rgba(123,178,255,.25);
+  opacity:0; transform:scale(.85);
+  animation: wave-pop 360ms ease-out forwards;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes wave-pop{
+  0%{ opacity:0; transform:scale(.85);}
+  25%{opacity:1; transform:scale(1.00);}
+  100%{opacity:0; transform:scale(1.15);}
+}
+
+/* =========================================================
+   Bottom / Legend
+   ========================================================= */
+.bottom{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; margin-top:16px;
+}
+button{
+  background:var(--card); color:#e9eef6; border:1px solid var(--border);
+  padding:8px 12px; border-radius:10px; cursor:pointer;
+}
+button:hover{ border-color:#3b4763; }
+
+.legend{ display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); }
+.legend-item{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border:1px dashed var(--border); border-radius:999px;
+}
+.legend-item.wall  { background:var(--wall); }
+.legend-item.floor { background:var(--floor); }
+.legend-item.hero  { background:#132a21; outline:1px solid rgba(61,220,151,.30); }
+.legend-item.enemy { background:#231317; outline:1px solid rgba(255,107,107,.30); }
+.legend-item.sword { background:#231f13; outline:1px solid rgba(255,209,102,.30); }
+.legend-item.potion{ background:#121a29; outline:1px solid rgba(123,178,255,.30); }
+
+/* =========================================================
+   Layout: Field + Initiative
+   ========================================================= */
+.game{ display:flex; align-items:flex-start; gap:16px; flex-wrap:nowrap; }
+
+.initiative{
+  width:clamp(260px, 18vw, 340px);
+  flex:0 0 clamp(260px, 18vw, 340px);
+  margin-top:16px;
+
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.20), inset 0 0 0 1px rgba(255,255,255,.02);
+
+  max-height: calc(var(--rows) * var(--tile) + (var(--rows) - 1) * var(--gap) + 2 * var(--gap));
+  overflow-y:auto; overflow-x:hidden;
+}
+.initiative .title{
+  font-size:13px; color:var(--muted);
+  margin:4px 4px 8px; letter-spacing:.02em;
+}
+.initiative-list{ display:flex; flex-direction:column; gap:8px; padding-right:6px; }
+
+/* Card */
+.init-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:42px 1fr auto;
+  grid-template-rows:auto auto;
+  grid-template-areas:
+    "ava name ap"
+    "ava hp   ap";
+  gap:4px 10px;
+  padding:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.04);
+  transition: background .15s ease, outline-color .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.init-item.active{ outline:1px solid rgba(123,178,255,.35); background:rgba(123,178,255,.06); }
+.init-item:hover { background:rgba(255,255,255,.04); cursor:default; }
+.init-item.hover  { outline:1px solid rgba(61,220,151,.45); box-shadow:0 0 0 2px rgba(61,220,151,.08) inset; background:rgba(61,220,151,.06); }
+
+/* Avatar: Enemy (повторяем неоновую прогрессию) */
+.init-ava{
+  grid-area:ava;
+  width:42px; height:42px;
+  position:relative;
+  border-radius:8px;
+  background:
+    radial-gradient(120% 120% at 30% 30%, rgba(255,107,107,.14) 0%, rgba(0,0,0,0) 60%),
+    #231318;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.init-ava::after{
+  content:""; position:absolute; inset:6px; border-radius:6px;
+  background: var(--enemy);
+  box-shadow: 0 0 var(--i-outer,6px) rgba(255,107,107,.45);
+}
+
+/* Enemy bright presets on cards (t1..t4) */
+.init-item.t1 .init-ava::after{ --i-outer:5px;  filter:brightness(1.00) saturate(1.00); }
+.init-item.t2 .init-ava::after{ --i-outer:7px;  filter:brightness(1.06) saturate(1.06); }
+.init-item.t3 .init-ava::after{ --i-outer:10px; filter:brightness(1.12) saturate(1.10); }
+.init-item.t4 .init-ava::after{ --i-outer:13px; filter:brightness(1.20) saturate(1.16); }
+
+/* Avatar: Hero (круг + уровень) */
+.hero-card .init-ava{
+  background:
+    radial-gradient(120% 120% at 32% 32%, rgba(61,220,151,.12) 0%, rgba(0,0,0,0) 60%),
+    rgba(61,220,151,.08);
+  border-radius:50%;
+  box-shadow: inset 0 0 0 1px rgba(61,220,151,.20);
+}
+.hero-card .init-ava::after{
+  content:""; position:absolute; inset:6px; border-radius:50%;
+  background: var(--hero);
+  box-shadow: 0 0 var(--ih-outer,7px) rgba(61,220,151,.55);
+}
+.hero-card.lv1 .init-ava::after{ --ih-outer:6px;  filter:brightness(1.00) saturate(1.00); }
+.hero-card.lv2 .init-ava::after{ --ih-outer:8px;  filter:brightness(1.06) saturate(1.05); }
+.hero-card.lv3 .init-ava::after{ --ih-outer:10px; filter:brightness(1.12) saturate(1.10); }
+.hero-card.lv4 .init-ava::after{ --ih-outer:12px; filter:brightness(1.18) saturate(1.12); }
+.hero-card.lv5 .init-ava::after{ --ih-outer:14px; filter:brightness(1.25) saturate(1.16); }
+
+/* Text blocks */
+.init-name{
+  grid-area:name; font-size:13px; line-height:1.2;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-break:break-word;
+}
+.init-ap{
+  grid-area:ap; align-self:start; font-size:12px;
+  padding:2px 6px; border-radius:999px;
+  color:#7bb2ff;
+  background:rgba(123,178,255,.10);
+  border:1px solid rgba(123,178,255,.25);
+}
+.init-hp{
+  grid-area:hp; height:6px; border-radius:4px; overflow:hidden;
+  background:rgba(255,255,255,.08);
+}
+.init-hp > i{ display:block; height:100%; background:linear-gradient(90deg,#ff6b6b,#ffd166,#3ddc97); }
+
+/* Skipping this round */
+.init-item.init-skip{
+  opacity:.55; filter:saturate(.75);
+}
+.init-item.init-skip .init-ap{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.12);
+  color:#9fb0c2;
+}
+
+/* =========================================================
+   Scrollbar (initiative)
+   ========================================================= */
+.initiative::-webkit-scrollbar{ width:10px; }
+.initiative::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.08);
+  border-radius:999px;
+}
+
+/* =========================================================
+   Tooltip (field hover)
+   ========================================================= */
+#hoverTip{
+  position:fixed; z-index:9999; display:none;
+  min-width:160px; max-width:240px;
+  padding:8px 10px; border-radius:10px;
+  background: rgba(18,22,33,.96); color:#e9eef6;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.02);
+  pointer-events:none;
+}
+#hoverTip .tip-title{ font-weight:700; font-size:13px; margin-bottom:6px; color:#9ccfb6; }
+#hoverTip .tip-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; color:#cfe1ed; }
+#hoverTip .tip-row span{ opacity:.8; }
